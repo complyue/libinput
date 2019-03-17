@@ -710,6 +710,10 @@ tp_tap_dragging3_handle_event(struct tp_dispatch *tp,
 			      enum tap_event event, uint64_t time)
 {
 	switch (event) {
+	case TAP_EVENT_PALM:
+	case TAP_EVENT_PALM_UP:
+		/* ignore for now */
+		break;
 	case TAP_EVENT_RELEASE:
 		if (tp->nfingers_down == 0) {
 			tp->tap.state = TAP_STATE_DRAGGING_3_WAIT;
@@ -742,6 +746,10 @@ tp_tap_dragging3_wait_handle_event(struct tp_dispatch *tp,
 {
 	struct libinput *libinput = tp_libinput_context(tp);
 	switch (event) {
+	case TAP_EVENT_PALM:
+	case TAP_EVENT_PALM_UP:
+		/* ignore for now */
+		break;
 	case TAP_EVENT_RELEASE:
 		log_bug_libinput(libinput,
 				 "invalid tap event, no fingers are down\n");
@@ -774,6 +782,10 @@ tp_tap_dragging3_or_tap_handle_event(struct tp_dispatch *tp,
 				     enum tap_event event, uint64_t time)
 {
 	switch (event) {
+	case TAP_EVENT_PALM:
+	case TAP_EVENT_PALM_UP:
+		/* ignore for now */
+		break;
 	case TAP_EVENT_RELEASE:
 		tp_tap_notify(tp, time, 1, LIBINPUT_BUTTON_STATE_RELEASED);
 		switch (tp->nfingers_down) {
