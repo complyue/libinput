@@ -329,9 +329,6 @@ tp_tap_touch2_handle_event(struct tp_dispatch *tp,
 	switch (event) {
 	case TAP_EVENT_TOUCH:
 		tp->tap.state = TAP_STATE_TOUCH_3;
-		if (tp->tap.three_finger_dragging_enabled) {
-			tp_tap_notify(tp, time, 1, LIBINPUT_BUTTON_STATE_PRESSED);
-		}
 		tp->tap.saved_press_time = time;
 		tp_tap_set_timer(tp, time);
 		break;
@@ -369,9 +366,6 @@ tp_tap_touch2_hold_handle_event(struct tp_dispatch *tp,
 	switch (event) {
 	case TAP_EVENT_TOUCH:
 		tp->tap.state = TAP_STATE_TOUCH_3;
-		if (tp->tap.three_finger_dragging_enabled) {
-			tp_tap_notify(tp, time, 1, LIBINPUT_BUTTON_STATE_PRESSED);
-		}
 		tp->tap.saved_press_time = time;
 		tp_tap_set_timer(tp, time);
 		break;
@@ -470,6 +464,7 @@ tp_tap_touch3_handle_event(struct tp_dispatch *tp,
 	case TAP_EVENT_TIMEOUT:
 		if (tp->tap.three_finger_dragging_enabled) {
 			tp->tap.state = TAP_STATE_DRAGGING_3;
+			tp_tap_notify(tp, time, 1, LIBINPUT_BUTTON_STATE_PRESSED);
 		} else {
 			tp->tap.state = TAP_STATE_TOUCH_3_HOLD;
 			tp_tap_clear_timer(tp);
