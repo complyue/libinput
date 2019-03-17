@@ -816,7 +816,9 @@ tp_tap_dragging3_or_tap_handle_event(struct tp_dispatch *tp,
 		break;
 	case TAP_EVENT_MOTION:
 		tp_tap_clear_timer(tp);
-		/* fallthrough */
+		tp->tap.state = TAP_STATE_IDLE;
+		tp_tap_notify(tp, time, 1, LIBINPUT_BUTTON_STATE_RELEASED);
+		break;
 	case TAP_EVENT_TIMEOUT:
 		switch (tp->nfingers_down) {
 		case 1:
