@@ -713,16 +713,10 @@ tp_tap_dragging3_handle_event(struct tp_dispatch *tp,
 		/* ignore for now */
 		break;
 	case TAP_EVENT_RELEASE:
-		if (tp->nfingers_down == 0) {
-			tp_tap_notify(tp, time, 1, LIBINPUT_BUTTON_STATE_RELEASED);
-			tp->tap.state = TAP_STATE_IDLE;
-		}
+		/* already handled before the touch iteration by nfingers_down cond. */
 		break;
 	case TAP_EVENT_TOUCH:
-		if (tp->nfingers_down > 3) {
-			tp_tap_notify(tp, time, 1, LIBINPUT_BUTTON_STATE_RELEASED);
-			tp->tap.state = TAP_STATE_DEAD;
-		}
+		/* already handled before the touch iteration by nfingers_down cond. */
 		break;
 	case TAP_EVENT_MOTION:
 	case TAP_EVENT_TIMEOUT:
@@ -1009,10 +1003,30 @@ tp_tap_handle_state(struct tp_dispatch *tp, uint64_t time)
 		return 0;
 
 	if (tp->tap.three_finger_dragging_enabled) {
-		/* test into 3fd state before iterating each touches */
-		if(tp->nfingers_down == 3 && tp->tap.state != TAP_STATE_DRAGGING_3) {
-			tp->tap.state = TAP_STATE_DRAGGING_3;
-			tp_tap_notify(tp, time, 1, LIBINPUT_BUTTON_STATE_PRESSED);
+		/* test in/out 3fd state before iterating each touches */
+		if (tp->nfingers_down == 3) {
+			switch (tp->tap.state) {
+			case TAP_STATE_DEAD:
+				/* don't revive */
+				break;
+			case TAP_STATE_DRAGGING_3:
+				/* already in 3fd state */
+				break;
+			default:
+				tp->tap.state = TAP_STATE_DRAGGING_3;
+				tp_tap_notify(tp, time, 1, LIBINPUT_BUTTON_STATE_PRESSED);
+				break;
+			}
+		} else {
+		  if (tp->tap.state == TAP_STATE_DRAGGING_3) {
+				if (tp->nfingers_down == 0) {
+					tp_tap_notify(tp, time, 1, LIBINPUT_BUTTON_STATE_RELEASED);
+					tp->tap.state = TAP_STATE_IDLE;
+				} else if (tp->nfingers_down > 3) {
+					tp_tap_notify(tp, time, 1, LIBINPUT_BUTTON_STATE_RELEASED);
+					tp->tap.state = TAP_STATE_DEAD;
+				}
+			}
 		}
 	}
 
